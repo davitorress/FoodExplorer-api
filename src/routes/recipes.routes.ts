@@ -3,6 +3,7 @@ import { Router } from "express";
 
 import { MULTER } from "../configs/upload";
 import { RecipeController } from "../controllers/RecipeController";
+import { ensureAuthenticated } from "../middlewares/ensureAuthenticated";
 import { RecipeImageController } from "../controllers/RecipeImageController";
 
 const recipesRoutes = Router();
@@ -11,6 +12,7 @@ const upload = multer(MULTER);
 const recipeController = new RecipeController();
 const recipeImageController = new RecipeImageController();
 
+recipesRoutes.use(ensureAuthenticated);
 recipesRoutes.get("/", recipeController.index);
 recipesRoutes.get("/:id", recipeController.show);
 recipesRoutes.post("/", recipeController.create);

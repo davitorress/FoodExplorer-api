@@ -50,13 +50,16 @@ export class AdminController {
 				.optional(),
 		});
 
-		const { id } = req.params;
+		const id = req.user!.id;
+		const admin = req.user!.admin;
 		const result = bodySchema.safeParse(req.body);
 
 		if (!result.success) {
 			throw new AppError(result.error.issues[0].message);
 		}
 		const { name, email, password, old_password } = result.data;
+
+		if (!admin) throw new AppError("Você não pode alterar dados de um administrador!", 401);
 
 		const user = await knexCon("admin").where({ id }).first();
 		if (!user) {

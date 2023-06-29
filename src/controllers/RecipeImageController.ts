@@ -7,8 +7,10 @@ import { DiskStorage } from "../providers/DiskStorage";
 export class RecipeImageController {
 	async update(req: Request, res: Response) {
 		const { id } = req.params;
+		const admin = req.user!.admin;
 		const imageFilename = req.file?.filename;
 
+		if (!admin) throw new AppError("Você não tem permissão para editar receitas!", 401);
 		if (!imageFilename) throw new AppError("Envie uma imagem para a receita!");
 
 		const diskStorage = new DiskStorage();

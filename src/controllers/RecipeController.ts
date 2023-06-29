@@ -6,14 +6,38 @@ import { AppError } from "../utils/AppError";
 
 export class RecipeController {
 	async index(req: Request, res: Response) {
-		const recipes = await knexCon("recipes").select([
-			"recipes.id",
-			"recipes.name",
-			"recipes.description",
-			"recipes.category",
-			"recipes.price",
-			"recipes.image",
-		]);
+		const { name, ingredients } = req.query;
+
+		let recipes = await knexCon("recipes")
+			.select([
+				"recipes.id",
+				"recipes.name",
+				"recipes.description",
+				"recipes.category",
+				"recipes.price",
+				"recipes.image",
+			])
+			.whereLike("recipes.name", `%${name}%`);
+
+		if (ingredients) {
+			const filterIngredients = ingredients
+				.toString()
+				.split(",")
+				.map((ingredient) => ingredient.trim());
+
+			recipes = await knexCon("recipes")
+				.select([
+					"recipes.id",
+					"recipes.name",
+					"recipes.description",
+					"recipes.category",
+					"recipes.price",
+					"recipes.image",
+				])
+				.whereLike("recipes.name", `%${name}%`)
+				.whereIn("ingredients.name", filterIngredients)
+				.innerJoin("ingredients", "recipes.id", "ingredients.recipe_id");
+		}
 
 		const recipesWithIngredients = await Promise.all(
 			recipes.map(async (recipe) => {
@@ -54,12 +78,16 @@ export class RecipeController {
 			price: z.number().nonnegative({ message: "O preço não pode ser negativo!" }),
 			ingredients: z.array(z.string()).nonempty({ message: "Insira pelo menos um ingrediente!" }),
 		});
+
+		const admin = req.user!.admin;
 		const result = bodySchema.safeParse(req.body);
 
 		if (!result.success) {
 			throw new AppError(result.error.issues[0].message);
 		}
 		const { name, description, category, price, ingredients } = result.data;
+
+		if (!admin) throw new AppError("Você não tem permissão para criar receitas!", 401);
 
 		const [recipe_id] = await knexCon("recipes").insert({
 			name,
@@ -85,6 +113,8 @@ export class RecipeController {
 			price: z.number().nonnegative({ message: "O preço não pode ser negativo!" }).optional(),
 			ingredients: z.array(z.string()).nonempty({ message: "Insira pelo menos um ingrediente!" }).optional(),
 		});
+
+		const admin = req.user!.admin;
 		const result = bodySchema.safeParse(req.body);
 
 		if (!result.success) {
@@ -92,6 +122,8 @@ export class RecipeController {
 		}
 		const { name, description, category, price, ingredients } = result.data;
 		const { id } = req.params;
+
+		if (!admin) throw new AppError("Você não tem permissão para editar receitas!", 401);
 
 		const recipe = await knexCon("recipes").where({ id }).first();
 
@@ -125,6 +157,10 @@ export class RecipeController {
 
 	async delete(req: Request, res: Response) {
 		const { id } = req.params;
+
+		const admin = req.user!.admin;
+		if (!admin) throw new AppError("Você não tem permissão para deletar receitas!", 401);
+
 		await knexCon("recipes").where({ id }).delete();
 		return res.json();
 	}
