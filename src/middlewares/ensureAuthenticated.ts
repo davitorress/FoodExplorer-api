@@ -10,11 +10,13 @@ export async function ensureAuthenticated(req: Request, res: Response, next: Nex
 	if (!authHeader) throw new AppError("Token JWT não informado.", 401);
 
 	const [, token] = authHeader.split(" ");
-	console.log(token);
+
 	try {
 		const { payload } = await jwtVerify(token, jwt_secret, authConfig);
+		const data = JSON.parse(payload.sub!);
 		req.user = {
-			id: Number(payload.sub),
+			id: Number(data.id),
+			admin: data.admin,
 		};
 		return next();
 	} catch (error: any) {

@@ -50,7 +50,8 @@ export class UserController {
 				.optional(),
 		});
 
-		const { id } = req.params;
+		const id = req.user!.id;
+		const admin = req.user!.admin;
 		const result = bodySchema.safeParse(req.body);
 
 		if (!result.success) {
@@ -58,7 +59,9 @@ export class UserController {
 		}
 		const { name, email, password, old_password } = result.data;
 
-		const user = await knexCon("users").where({ id }).first();
+		if (admin) throw new AppError("Usuários não podem alterar administradores!", 401);
+
+		let user = await knexCon("users").where({ id }).first();
 		if (!user) {
 			throw new AppError("Usuário não encontrado.");
 		}

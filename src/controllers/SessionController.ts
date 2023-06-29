@@ -31,7 +31,10 @@ export class SessionController {
 		if (!passwordMatch) throw new AppError("E-mail ou senha incorretos.", 401);
 
 		const payload: JWTPayload = {
-			sub: user.id,
+			sub: JSON.stringify({
+				id: user.id,
+				admin: admin ?? false,
+			}),
 		};
 		const signJWT = new SignJWT(payload);
 		signJWT
