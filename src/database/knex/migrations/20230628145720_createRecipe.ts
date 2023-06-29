@@ -8,10 +8,11 @@ export async function up(knex: Knex): Promise<void> {
 	return knex.schema.createTable("recipes", (table) => {
 		table.increments("id").primary();
 		table.string("name").notNullable();
-		table.string("image").notNullable();
 		table.double("price").notNullable();
 		table.string("category").notNullable();
 		table.string("description").notNullable();
+
+		table.string("image").nullable();
 		table.timestamp("created_at").defaultTo(knex.fn.now());
 		table.timestamp("updated_at").defaultTo(knex.fn.now());
 	});
