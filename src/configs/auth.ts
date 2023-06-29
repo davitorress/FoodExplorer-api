@@ -1,4 +1,4 @@
-import { JWTVerifyOptions, JWTHeaderParameters, SignOptions } from "jose";
+import { JWTVerifyOptions, JWTHeaderParameters } from "jose";
 
 const authConfig: JWTVerifyOptions = {
 	typ: "JWT",
