@@ -8,8 +8,8 @@ import { AppError } from "../utils/AppError";
 export class UserController {
 	async create(req: Request, res: Response) {
 		const bodySchema = z.object({
-			name: z.string(),
-			email: z.string().email({ message: "E-mail inválido!" }),
+			name: z.string().nonempty({ message: "O nome não pode ser vazio!" }),
+			email: z.string().email({ message: "E-mail inválido!" }).nonempty({ message: "O e-mail não pode ser vazio!" }),
 			password: z
 				.string()
 				.min(6, { message: "A senha deve ter no mínimo 6 caracteres!" })
