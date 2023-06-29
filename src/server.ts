@@ -6,11 +6,13 @@ import { Errback, Request, Response, NextFunction } from "express";
 
 import { routes } from "./routes";
 import { AppError } from "./utils/AppError";
+import { UPLOAD_FOLDER } from "./configs/upload";
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use("/files", express.static(UPLOAD_FOLDER));
 
 app.use(routes);
 app.use((error: Errback, req: Request, res: Response, next: NextFunction) => {
