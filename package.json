@@ -4,9 +4,10 @@
 	"description": "Projeto Final do Explorer",
 	"main": "index.js",
 	"scripts": {
-		"start": "npm run migrate && tsx src/server.ts",
-		"dev": "npm run migrate && tsx watch src/server.ts",
+		"start": "npm run migrate && npm run seed && tsx src/server.ts",
+		"dev": "npm run migrate && npm run seed && tsx watch src/server.ts",
 		"migrate": "knex migrate:latest",
+		"seed": "knex seed:run",
 		"build": "tsup src"
 	},
 	"keywords": [],
@@ -35,3 +36,4 @@
 		"zod": "^3.21.4"
 	}
 }
+

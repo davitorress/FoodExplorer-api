@@ -1,7 +1,7 @@
 import path from "path";
 import { Knex } from "knex";
 
-const knexConfig = {
+const knexConfig: { development: Knex.Config } = {
 	development: {
 		client: "sqlite3",
 		connection: {
@@ -13,8 +13,11 @@ const knexConfig = {
 		migrations: {
 			directory: path.resolve(__dirname, "src", "database", "knex", "migrations"),
 		},
+		seeds: {
+			directory: path.resolve(__dirname, "src", "database", "knex", "seeds"),
+		},
 		useNullAsDefault: true,
-	} as Knex.Config,
+	},
 };
 
 export default knexConfig;
