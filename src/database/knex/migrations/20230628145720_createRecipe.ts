@@ -9,8 +9,8 @@ export async function up(knex: Knex): Promise<void> {
 		table.increments("id").primary();
 		table.string("name").notNullable();
 		table.double("price").notNullable();
-		table.string("category").notNullable();
 		table.string("description").notNullable();
+		table.string("category_id").references("id").inTable("categories").notNullable();
 
 		table.string("image").nullable();
 		table.timestamp("created_at").defaultTo(knex.fn.now());
