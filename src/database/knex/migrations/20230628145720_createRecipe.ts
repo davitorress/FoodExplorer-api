@@ -10,7 +10,7 @@ export async function up(knex: Knex): Promise<void> {
 		table.string("name").notNullable();
 		table.double("price").notNullable();
 		table.string("description").notNullable();
-		table.string("category_id").references("id").inTable("categories").notNullable();
+		table.integer("category_id").references("id").inTable("categories").notNullable();
 
 		table.string("image").nullable();
 		table.timestamp("created_at").defaultTo(knex.fn.now());
