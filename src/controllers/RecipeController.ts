@@ -13,7 +13,7 @@ export class RecipeController {
 				"recipes.id",
 				"recipes.name",
 				"recipes.description",
-				"recipes.category",
+				"recipes.category_id",
 				"recipes.price",
 				"recipes.image",
 			])
@@ -30,7 +30,7 @@ export class RecipeController {
 					"recipes.id",
 					"recipes.name",
 					"recipes.description",
-					"recipes.category",
+					"recipes.category_id",
 					"recipes.price",
 					"recipes.image",
 				])
@@ -50,7 +50,19 @@ export class RecipeController {
 			})
 		);
 
-		return res.json(recipesWithIngredients);
+		const categories = await knexCon("categories").select("id", "name");
+		const categoriesWithRecipes = await Promise.all(
+			categories.map(async (category) => {
+				console.log(category);
+				const filteredRecipes = recipesWithIngredients.filter((recipe) => recipe.category_id === category.id);
+				return {
+					...category,
+					recipes: filteredRecipes,
+				};
+			})
+		);
+
+		return res.json(categoriesWithRecipes);
 	}
 
 	async show(req: Request, res: Response) {
@@ -74,7 +86,7 @@ export class RecipeController {
 		const bodySchema = z.object({
 			name: z.string().nonempty({ message: "O nome não pode ser vazio!" }),
 			description: z.string().nonempty({ message: "A descrição não pode ser vazia!" }),
-			category: z.string().nonempty({ message: "Selecione uma categoria!" }),
+			category_id: z.number().min(1).nonnegative({ message: "Selecione uma categoria!" }),
 			price: z.number().nonnegative({ message: "O preço não pode ser negativo!" }),
 			ingredients: z.array(z.string()).nonempty({ message: "Insira pelo menos um ingrediente!" }),
 		});
@@ -85,14 +97,14 @@ export class RecipeController {
 		if (!result.success) {
 			throw new AppError(result.error.issues[0].message);
 		}
-		const { name, description, category, price, ingredients } = result.data;
+		const { name, description, category_id, price, ingredients } = result.data;
 
 		if (!admin) throw new AppError("Você não tem permissão para criar receitas!", 401);
 
 		const [recipe_id] = await knexCon("recipes").insert({
 			name,
 			description,
-			category,
+			category_id,
 			price,
 		});
 
@@ -109,7 +121,7 @@ export class RecipeController {
 		const bodySchema = z.object({
 			name: z.string().nonempty({ message: "O nome não pode ser vazio!" }).optional(),
 			description: z.string().nonempty({ message: "A descrição não pode ser vazia!" }).optional(),
-			category: z.string().nonempty({ message: "Selecione uma categoria!" }).optional(),
+			category_id: z.number().min(1).nonnegative({ message: "Selecione uma categoria!" }).optional(),
 			price: z.number().nonnegative({ message: "O preço não pode ser negativo!" }).optional(),
 			ingredients: z.array(z.string()).nonempty({ message: "Insira pelo menos um ingrediente!" }).optional(),
 		});
@@ -120,7 +132,7 @@ export class RecipeController {
 		if (!result.success) {
 			throw new AppError(result.error.issues[0].message);
 		}
-		const { name, description, category, price, ingredients } = result.data;
+		const { name, description, category_id, price, ingredients } = result.data;
 		const { id } = req.params;
 
 		if (!admin) throw new AppError("Você não tem permissão para editar receitas!", 401);
@@ -133,7 +145,7 @@ export class RecipeController {
 
 		recipe.name = name ?? recipe.name;
 		recipe.description = description ?? recipe.description;
-		recipe.category = category ?? recipe.category;
+		recipe.category_id = category_id ?? recipe.category_id;
 		recipe.price = price ?? recipe.price;
 
 		if (ingredients) {
