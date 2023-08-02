@@ -24,7 +24,10 @@ export class SessionController {
 		const { email, password, admin } = result.data;
 
 		let user = await knexCon("users").where({ email }).first();
-		if (admin) user = await knexCon("admin").where({ email }).first();
+		if (admin) {
+			user = await knexCon("admin").where({ email }).first();
+			user.admin = true;
+		}
 		if (!user) throw new AppError("E-mail ou senha incorretos.", 401);
 
 		const passwordMatch = await compare(password, user.password);
