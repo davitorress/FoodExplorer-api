@@ -3,6 +3,9 @@
 	"type": "commonjs",
 	"version": "1.0.0",
 	"description": "Projeto Final do Explorer",
+	"engines": {
+		"node": ">=16.0.0"
+	},
 	"main": "index.js",
 	"scripts": {
 		"start": "npm run build && npm run migrate && npm run seed && node build/src/server.js",
