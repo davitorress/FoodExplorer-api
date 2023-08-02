@@ -1,4 +1,4 @@
-import path from "path";
+const path = require("path");
 import { Knex } from "knex";
 
 const knexConfig: { development: Knex.Config } = {
