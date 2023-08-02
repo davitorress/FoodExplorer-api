@@ -1,5 +1,3 @@
-require("ts-node/register");
-
 import path from "path";
 import { Knex } from "knex";
 
