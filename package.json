@@ -5,7 +5,7 @@
 	"description": "Projeto Final do Explorer",
 	"main": "index.js",
 	"scripts": {
-		"start": "npm run migrate && npm run seed && npm run build && node build/src/server.js",
+		"start": "npm run build && npm run migrate && npm run seed && node build/src/server.js",
 		"dev": "npm run migrate && npm run seed && tsx watch src/server.ts",
 		"migrate": "knex migrate:latest",
 		"seed": "knex seed:run",
