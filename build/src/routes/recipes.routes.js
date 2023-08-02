@@ -1,0 +1,24 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.recipesRoutes = void 0;
+const multer_1 = __importDefault(require("multer"));
+const express_1 = require("express");
+const upload_1 = require("../configs/upload");
+const RecipeController_1 = require("../controllers/RecipeController");
+const ensureAuthenticated_1 = require("../middlewares/ensureAuthenticated");
+const RecipeImageController_1 = require("../controllers/RecipeImageController");
+const recipesRoutes = (0, express_1.Router)();
+exports.recipesRoutes = recipesRoutes;
+const upload = (0, multer_1.default)(upload_1.MULTER);
+const recipeController = new RecipeController_1.RecipeController();
+const recipeImageController = new RecipeImageController_1.RecipeImageController();
+recipesRoutes.use(ensureAuthenticated_1.ensureAuthenticated);
+recipesRoutes.get("/", recipeController.index);
+recipesRoutes.get("/:id", recipeController.show);
+recipesRoutes.post("/", recipeController.create);
+recipesRoutes.patch("/:id", recipeController.update);
+recipesRoutes.delete("/:id", recipeController.delete);
+recipesRoutes.patch("/:id/image", upload.single("image"), recipeImageController.update);

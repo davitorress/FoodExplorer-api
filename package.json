@@ -5,10 +5,11 @@
 	"description": "Projeto Final do Explorer",
 	"main": "index.js",
 	"scripts": {
-		"start": "npm run migrate && npm run seed && tsx src/server.ts",
+		"start": "npm run migrate && npm run seed && node build/src/server.js",
 		"dev": "npm run migrate && npm run seed && tsx watch src/server.ts",
 		"migrate": "knex migrate:latest",
-		"seed": "knex seed:run"
+		"seed": "knex seed:run",
+		"build": "tsc"
 	},
 	"keywords": [],
 	"author": "Davi Torres",
