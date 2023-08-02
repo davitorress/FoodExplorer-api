@@ -25,18 +25,44 @@ export class RecipeController {
 				.split(",")
 				.map((ingredient) => ingredient.trim());
 
-			recipes = await knexCon("recipes")
-				.select([
-					"recipes.id",
-					"recipes.name",
-					"recipes.description",
-					"recipes.category_id",
-					"recipes.price",
-					"recipes.image",
-				])
-				.whereLike("recipes.name", `%${name}%`)
-				.whereIn("ingredients.name", filterIngredients)
-				.innerJoin("ingredients", "recipes.id", "ingredients.recipe_id");
+			const ingredientsFiltered = await knexCon("ingredients")
+				.select("name")
+				.whereLike("name", `%${filterIngredients}%`);
+
+			if (recipes.length === 0) {
+				recipes = await knexCon("recipes")
+					.select([
+						"recipes.id",
+						"recipes.name",
+						"recipes.description",
+						"recipes.category_id",
+						"recipes.price",
+						"recipes.image",
+					])
+					.whereIn(
+						"ingredients.name",
+						ingredientsFiltered.map((ingredient) => ingredient.name)
+					)
+					.innerJoin("ingredients", "recipes.id", "ingredients.recipe_id");
+			} else {
+				if (ingredientsFiltered.length > 0) {
+					recipes = await knexCon("recipes")
+						.select([
+							"recipes.id",
+							"recipes.name",
+							"recipes.description",
+							"recipes.category_id",
+							"recipes.price",
+							"recipes.image",
+						])
+						.whereLike("recipes.name", `%${name}%`)
+						.whereIn(
+							"ingredients.name",
+							ingredientsFiltered.map((ingredient) => ingredient.name)
+						)
+						.innerJoin("ingredients", "recipes.id", "ingredients.recipe_id");
+				}
+			}
 		}
 
 		const recipesWithIngredients = await Promise.all(
@@ -53,7 +79,6 @@ export class RecipeController {
 		const categories = await knexCon("categories").select("id", "name");
 		const categoriesWithRecipes = await Promise.all(
 			categories.map(async (category) => {
-				console.log(category);
 				const filteredRecipes = recipesWithIngredients.filter((recipe) => recipe.category_id === category.id);
 				return {
 					...category,
@@ -114,7 +139,7 @@ export class RecipeController {
 		}));
 		await knexCon("ingredients").insert(ingredientsToInsert);
 
-		return res.status(201).json();
+		return res.status(201).json({ id: recipe_id });
 	}
 
 	async update(req: Request, res: Response) {
